@@ -1,3 +1,6 @@
+// Package for describing email structure thus handling emails
+// with the general porpuse of generating a json file from
+// a directory of email files
 package email
 
 import (
@@ -13,11 +16,13 @@ import (
 	"strings"
 )
 
+// Struct to describe header for all the records/emails
 type EmailsDir struct {
 	Index   string   `json:"index"`
 	Records []*Email `json:"records"`
 }
 
+// defines Email file as an object to store its information as json format
 type Email struct {
 	Origin      string   `json:"origin"`
 	SubFolder   string   `json:"sub_folder"`
@@ -34,6 +39,7 @@ type Email struct {
 	Content     string   `json:"content"`
 }
 
+// defines scan states when reading email file line by line
 var States = [10]string{
 	"Message-ID: ",
 	"Date: ",
@@ -47,6 +53,7 @@ var States = [10]string{
 	"Content-Transfer-Encoding: ",
 }
 
+// by a given email file line, returns the scan state if found, otherwise, returns the provided previus state
 func GetState(line, prev_state string) string {
 
 	for i := 0; i < len(States); i++ {
@@ -60,6 +67,8 @@ func GetState(line, prev_state string) string {
 
 }
 
+// by a given string of email adresses, removes spaces, tabs, new lines and returns an array
+// where each element is an email address
 func GetMails(mails_string string) []string {
 
 	// temp_line :=
@@ -77,6 +86,8 @@ func GetMails(mails_string string) []string {
 
 }
 
+// by a given directory path of email files, processes each one and
+// creates a json file
 func DirToJson(path string) {
 	var emails []*Email
 
@@ -97,13 +108,12 @@ func DirToJson(path string) {
 
 }
 
+// by a given email file path, returns an Email object
 func PathToEmail(path string) Email {
-
-	fmt.Println("entering email path func")
 
 	readFile, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("couldn't open path: %s\n", path)
+		fmt.Printf("couldn't open email file at path: %s\n", path)
 		panic(err)
 
 	}
@@ -180,8 +190,6 @@ func PathToEmail(path string) Email {
 	readFile.Close()
 
 	splited_path := strings.Split(path, "\\")
-	fmt.Print("splitted path: ")
-	fmt.Printf("%+q\n", splited_path)
 
 	sub_folder := strings.Join(splited_path[3:len(splited_path)-1], `\`)
 	raw_content, err := ioutil.ReadFile(path)
@@ -192,9 +200,11 @@ func PathToEmail(path string) Email {
 
 	}
 
+	//to get the message content of the email file, separates
+	//the whole content by a regular expression
+
 	reg_delimeter := regexp.MustCompile(`X-FileName\s*(.*?)\s*\n`)
 	raw_content_str := string(raw_content)
-
 	content := reg_delimeter.Split(raw_content_str, -1)
 
 	return Email{
