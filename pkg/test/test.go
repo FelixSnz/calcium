@@ -2,8 +2,8 @@ package test
 
 import "fmt"
 
-func test_func() {
+func TestFunc() {
 
-	fmt.Println("from test")
+	fmt.Println("message from test")
 
 }

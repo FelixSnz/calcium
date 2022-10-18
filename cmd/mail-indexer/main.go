@@ -1,8 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/FelixSnz/mail-indexer/pkg/test"
+)
 
 func main() {
-	name := "Go Developers"
-	fmt.Println("Azure for", name)
+	test.TestFunc()
 }
