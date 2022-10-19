@@ -88,8 +88,17 @@ func GetMails(mails_string string) []string {
 
 // by a given directory path of email files, processes each one and
 // creates a json file
-func DirToJson(path string) {
+func DirToJson(path, save_name string) {
 	var emails []*Email
+
+	var root string
+
+	if strings.Contains(path, "\\") {
+		splitted_path := strings.Split(path, "\\")
+		root = splitted_path[len(splitted_path)-1]
+	} else {
+		root = path
+	}
 
 	filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -103,8 +112,8 @@ func DirToJson(path string) {
 		return nil
 	})
 
-	p, _ := json.Marshal(EmailsDir{Index: "emails", Records: emails})
-	_ = ioutil.WriteFile("mailsdir.json", p, 0644)
+	p, _ := json.Marshal(EmailsDir{Index: root, Records: emails})
+	_ = os.WriteFile(save_name, p, 0644)
 
 }
 
