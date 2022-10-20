@@ -14,7 +14,12 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/FelixSnz/mail-indexer/internal/utils"
 )
+
+var root string
 
 // Struct to describe header for all the records/emails
 type EmailsDir struct {
@@ -24,19 +29,19 @@ type EmailsDir struct {
 
 // defines Email file as an object to store its information as json format
 type Email struct {
-	Origin      string   `json:"origin"`
-	SubFolder   string   `json:"sub_folder"`
-	Id          string   `json:"id"`
-	Date        string   `json:"date"`
-	From        string   `json:"from"`
-	To          []string `json:"to"`
-	Cc          []string `json:"cc"`
-	Bcc         []string `json:"bcc"`
-	Subject     string   `json:"subject"`
-	Version     string   `json:"version"`
-	ContentType string   `json:"type"`
-	Encoding    string   `json:"encoding"`
-	Content     string   `json:"content"`
+	Origin      string    `json:"origin"`
+	SubFolder   string    `json:"sub_folder"`
+	Id          string    `json:"id"`
+	Date        time.Time `json:"date"`
+	From        string    `json:"from"`
+	To          []string  `json:"to"`
+	Cc          []string  `json:"cc"`
+	Bcc         []string  `json:"bcc"`
+	Subject     string    `json:"subject"`
+	Version     string    `json:"version"`
+	ContentType string    `json:"type"`
+	Encoding    string    `json:"encoding"`
+	Content     string    `json:"content"`
 }
 
 // defines scan states when reading email file line by line
@@ -91,8 +96,6 @@ func GetMails(mails_string string) []string {
 func DirToJson(path, save_name string) {
 	var emails []*Email
 
-	var root string
-
 	if strings.Contains(path, "\\") {
 		splitted_path := strings.Split(path, "\\")
 		root = splitted_path[len(splitted_path)-1]
@@ -115,6 +118,35 @@ func DirToJson(path, save_name string) {
 	p, _ := json.Marshal(EmailsDir{Index: root, Records: emails})
 	_ = os.WriteFile(save_name, p, 0644)
 
+}
+
+func CleanDate(raw_date string) time.Time {
+
+	str_date := strings.TrimPrefix(raw_date, "Date: ")
+	day := str_date[5:7]
+	no_zero_pattern := `\d{1} `
+	match, err := regexp.MatchString(no_zero_pattern, day)
+
+	if err != nil {
+		fmt.Println("error matching day string")
+		log.Fatal(err)
+	}
+
+	if match {
+
+		index := 5
+		str_date = str_date[:index] + "0" + str_date[index:]
+	}
+
+	num_zone_regex := regexp.MustCompile(`-\s*(\d{4}) |\(|\)`)
+	str_date = num_zone_regex.ReplaceAllString(str_date, "")
+	date, err := time.Parse(time.RFC1123, str_date)
+
+	if err != nil {
+		fmt.Println("error parsing date")
+		log.Fatal(err)
+	}
+	return date
 }
 
 // by a given email file path, returns an Email object
@@ -200,7 +232,13 @@ func PathToEmail(path string) Email {
 
 	splited_path := strings.Split(path, "\\")
 
-	sub_folder := strings.Join(splited_path[3:len(splited_path)-1], `\`)
+	root_idx := utils.IndexOf(root, splited_path)
+
+	if root_idx == -1 {
+		log.Fatal("couldn't extract the root index")
+	}
+
+	sub_folder := strings.Join(splited_path[root_idx+2:len(splited_path)-1], `\`)
 	raw_content, err := ioutil.ReadFile(path)
 
 	if err != nil {
@@ -217,10 +255,10 @@ func PathToEmail(path string) Email {
 	content := reg_delimeter.Split(raw_content_str, -1)
 
 	return Email{
-		Origin:      splited_path[2],
+		Origin:      splited_path[root_idx+1],
 		SubFolder:   sub_folder,
 		Id:          strings.TrimPrefix(ID, "Message-ID: "),
-		Date:        strings.TrimPrefix(date, "Date: "),
+		Date:        CleanDate(date),
 		From:        strings.TrimPrefix(from_mail, "From: "),
 		To:          GetMails(strings.TrimPrefix(to_mails, "To: ")),
 		Cc:          GetMails(strings.TrimPrefix(cc_mails, "Cc: ")),
