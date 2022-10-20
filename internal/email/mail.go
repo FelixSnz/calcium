@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -30,9 +29,9 @@ type EmailsDir struct {
 // defines Email file as an object to store its information as json format
 type Email struct {
 	Origin      string    `json:"origin"`
-	SubFolder   string    `json:"sub_folder"`
+	SubFolder   string    `json:"subfolder"`
 	Id          string    `json:"id"`
-	Date        time.Time `json:"date"`
+	Date        time.Time `json:"@date"`
 	From        string    `json:"from"`
 	To          []string  `json:"to"`
 	Cc          []string  `json:"cc"`
@@ -239,7 +238,7 @@ func PathToEmail(path string) Email {
 	}
 
 	sub_folder := strings.Join(splited_path[root_idx+2:len(splited_path)-1], `\`)
-	raw_content, err := ioutil.ReadFile(path)
+	raw_content, err := os.ReadFile(path)
 
 	if err != nil {
 		fmt.Printf("couldn't read file at path: %s\n", path)
