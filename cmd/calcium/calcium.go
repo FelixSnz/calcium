@@ -28,6 +28,11 @@ func main() {
 		w.Write([]byte("Hello World!"))
 	})
 
+	router.Get("/home", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("you are in home"))
+	})
+
 	log.Fatal(http.ListenAndServe(":"+port, router))
 
 }
