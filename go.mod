@@ -1,4 +1,4 @@
-module github.com/FelixSnz/mail-indexer
+module mail-indexer
 
 go 1.19
 
