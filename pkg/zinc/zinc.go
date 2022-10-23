@@ -31,15 +31,14 @@ func NewIndex(name string) *zincIndex {
 //
 // search by date query:
 //
-//	{
+//	`{
 //		"search_type": "querystring",
 //		"query": {
-//			"term": '+date:>"2000-01-01T00:00:00Z" +date:<"2000-12-28T00:00:00Z"'
+//			"term": "+date:>\"2000-01-09T15:01:00-07:00\" +date:<\"2000-12-09T15:01:00-07:00\""
 //		},
 //
-//
-//		"_source":["date"]
-//	}
+//			"_source":["date"]
+//	}`
 //
 // search by word query:
 //
@@ -57,8 +56,6 @@ func (index zincIndex) Post(method, json_str string) string {
 
 	index_url := fmt.Sprintf(`http://localhost:4080/api/%s/`, index.name)
 
-	fmt.Println("HTTP JSON POST URL:", index_url+method)
-
 	req, err := http.NewRequest("POST", index_url+method, strings.NewReader(json_str))
 	if err != nil {
 		log.Fatal(err)
@@ -71,7 +68,7 @@ func (index zincIndex) Post(method, json_str string) string {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-	log.Printf("resp: %d\n", resp.StatusCode)
+	//log.Printf("resp: %d\n", resp.StatusCode)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -83,15 +80,15 @@ func (index zincIndex) Post(method, json_str string) string {
 		var err_resp ErrorResponse
 		json.Unmarshal(body, &err_resp)
 
-		fmt.Println("error: ")
-		log.Fatalf(err_resp.Err)
+		fmt.Println("error from zincsearch: ")
+		log.Fatal(err_resp.Err)
 
 	}
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	// fmt.Println("response Status:", resp.Status)
+	// fmt.Println("response Headers:", resp.Header)
 
-	fmt.Println(body)
+	// fmt.Println(body)
 	return string(body)
 
 }
