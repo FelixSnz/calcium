@@ -4,6 +4,7 @@ package email
 
 import (
 	"bufio"
+	"calcium/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,27 +12,28 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/FelixSnz/mail-indexer/internal/utils"
 )
 
-// defines Email file as an object to store its information as json format
+// defines Email file relevant content as an object to store its information as json format
 type JsonStruct struct {
-	Origin      string    `json:"origin"`
-	SubFolder   string    `json:"subfolder"`
-	Id          string    `json:"id"`
-	Date        time.Time `json:"date"`
-	From        string    `json:"from"`
-	To          []string  `json:"to"`
-	Cc          []string  `json:"cc"`
-	Bcc         []string  `json:"bcc"`
-	Subject     string    `json:"subject"`
-	Version     string    `json:"mimeversion"`
-	ContentType string    `json:"type"`
-	Encoding    string    `json:"encoding"`
-	Content     string    `json:"content"`
+	Origin    string    `json:"origin"`
+	SubFolder string    `json:"subfolder"`
+	Date      time.Time `json:"date"`
+	Subject   string    `json:"subject"`
+	From      string    `json:"from"`
+	To        []string  `json:"to"`
+	Cc        []string  `json:"cc"`
+	Content   string    `json:"content"`
+
+	// Bcc         []string  `json:"bcc"`
+	// Id          string    `json:"id"`
+	// Version     string    `json:"mimeversion"`
+	// ContentType string    `json:"type"`
+	// Encoding    string    `json:"encoding"`
+
 }
 
+// struct to handle email files
 type Email struct {
 	path   string
 	root   string
@@ -60,7 +62,7 @@ func New(path, root string) *Email {
 }
 
 // returns the message of the email
-func (email Email) GetMessage() string {
+func (email Email) GetContent() string {
 
 	raw_data, err := os.ReadFile(email.path)
 
@@ -100,16 +102,16 @@ func (email Email) GetJson() string {
 
 	}
 
-	var ID string
 	var date string
 	var from_mail string
 	var to_mails string
 	var cc_mails string
 	var subject string
-	var mime_version string
-	var content_type string
-	var encoding string
-	var bcc_mails string
+
+	//var ID string
+	// var content_type string
+	// var encoding string
+	// var bcc_mails string
 
 	fileScanner := bufio.NewScanner(readFile)
 
@@ -127,9 +129,6 @@ func (email Email) GetJson() string {
 
 			switch state {
 
-			case "Message-ID: ":
-				ID += line
-
 			case "Date: ":
 				date += line
 
@@ -145,17 +144,20 @@ func (email Email) GetJson() string {
 			case "Subject: ":
 				subject += line
 
-			case "Mime-Version: ":
-				mime_version += line
+			// case "Message-ID: ":
+			// 	ID += line
 
-			case "Content-Type: ":
-				content_type += line
+			// case "Mime-Version: ":
+			// 	mime_version += line
 
-			case "Content-Transfer-Encoding: ":
-				encoding += line
+			// case "Content-Type: ":
+			// 	content_type += line
 
-			case "Bcc: ":
-				bcc_mails += line
+			// case "Content-Transfer-Encoding: ":
+			// 	encoding += line
+
+			// case "Bcc: ":
+			// 	bcc_mails += line
 
 			default:
 
@@ -179,23 +181,26 @@ func (email Email) GetJson() string {
 		log.Fatal("couldn't extract the root index")
 	}
 
+	//fmt.Printf("splitted path: %v", splited_path)
+
 	sub_folder := strings.Join(splited_path[root_idx+2:len(splited_path)-1], `\`)
-	email_msg := email.GetMessage()
+	content := email.GetContent()
 
 	json_str, err := json.Marshal(JsonStruct{
-		Origin:      splited_path[root_idx+1],
-		SubFolder:   sub_folder,
-		Id:          strings.TrimPrefix(ID, "Message-ID: "),
-		Date:        CleanDate(date),
-		From:        strings.TrimPrefix(from_mail, "From: "),
-		To:          GetMails(strings.TrimPrefix(to_mails, "To: ")),
-		Cc:          GetMails(strings.TrimPrefix(cc_mails, "Cc: ")),
-		Bcc:         GetMails(strings.TrimPrefix(bcc_mails, "Bcc: ")),
-		Subject:     strings.TrimPrefix(subject, "Subject: "),
-		Version:     strings.TrimPrefix(mime_version, "Mime-Version: "),
-		ContentType: strings.TrimPrefix(content_type, "Content-Type: "),
-		Encoding:    strings.TrimPrefix(encoding, "Content-Transfer-Encoding: "),
-		Content:     email_msg,
+		Origin:    splited_path[root_idx+1],
+		SubFolder: sub_folder,
+		Date:      CleanDate(date),
+		Subject:   strings.TrimPrefix(subject, "Subject: "),
+		From:      strings.TrimPrefix(from_mail, "From: "),
+		To:        GetMails(strings.TrimPrefix(to_mails, "To: ")),
+		Cc:        GetMails(strings.TrimPrefix(cc_mails, "Cc: ")),
+		Content:   content,
+
+		// Id:          strings.TrimPrefix(ID, "Message-ID: "),
+		// Bcc:         GetMails(strings.TrimPrefix(bcc_mails, "Bcc: ")),
+		// Version:     strings.TrimPrefix(mime_version, "Mime-Version: "),
+		// ContentType: strings.TrimPrefix(content_type, "Content-Type: "),
+		// Encoding:    strings.TrimPrefix(encoding, "Content-Transfer-Encoding: "),
 	})
 
 	if err != nil {
@@ -244,9 +249,9 @@ func CleanDate(raw_date string) time.Time {
 		str_date = str_date[:index] + "0" + str_date[index:]
 	}
 
-	num_zone_regex := regexp.MustCompile(`-\s*(\d{4}) |\(|\)`)
-	str_date = num_zone_regex.ReplaceAllString(str_date, "")
-	date, err := time.Parse(time.RFC1123, str_date)
+	str_date = strings.Split(str_date, " (")[0]
+
+	date, err := time.Parse(time.RFC1123Z, str_date)
 
 	if err != nil {
 		fmt.Println("error parsing date")
