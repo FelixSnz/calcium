@@ -1,5 +1,4 @@
 bak.txt
 scripts/python/
-testmails.json
-temp.json
-temp2.json
+resources/json-files/
+resources/mails/enron_20110402/
