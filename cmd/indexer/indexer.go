@@ -6,12 +6,19 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 func main() {
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+
+	}()
 
 	args := os.Args[1:]
 
