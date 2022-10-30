@@ -25,19 +25,15 @@ func main() {
 
 	router := chi.NewRouter()
 
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/home", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Hello World!"))
+		w.Write([]byte("you are in home"))
 	})
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, `web\public`))
 
-	FileServer(router, "/files", filesDir)
-	router.Get("/home", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("you are in home"))
-	})
+	FileServer(router, "/", filesDir)
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 
@@ -49,7 +45,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	}
 
 	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
 		path += "/"
 	}
 	path += "*"

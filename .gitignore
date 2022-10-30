@@ -4,3 +4,34 @@ resources/json-files/
 resources/mails/enron_20110402/
 tmp/
 temp.html
+
+
+
+# Logs
+logs
+*.log
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+web/pnpm-debug.log*
+web/lerna-debug.log*
+
+web/node_modules
+web/DS_Store
+web/dist
+web/dist-ssr
+web/coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
