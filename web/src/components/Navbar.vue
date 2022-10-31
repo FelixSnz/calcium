@@ -1,4 +1,5 @@
 <template>
+
     <form @submit.prevent="SaveSearchReq()">
         <input class="bg-slate-600" type="text" placeholder="write keyword" v-model="SearchReq.keyword" />
         <input type="text" placeholder="write from date" v-model="SearchReq.from_date" />
@@ -9,7 +10,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import type { SearchReq } from '../interfaces/SearchReq';
+import type { SearchReq } from '@/interfaces/SearchReq';
+import SearchEmail from '@/services/SearchService';
 
 export default defineComponent({
     data() {
@@ -18,8 +20,9 @@ export default defineComponent({
         }
     },
     methods: {
-        SaveSearchReq() {
-            console.log(this.SearchReq)
+        async SaveSearchReq() {
+            const res = await SearchEmail(this.SearchReq)
+            console.log(res)
         }
     }
 })
