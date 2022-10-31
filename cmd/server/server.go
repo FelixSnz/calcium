@@ -1,13 +1,12 @@
 package main
 
 import (
+	"calcium/pkg/routes"
 	"calcium/pkg/utils"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/go-chi/chi"
 )
@@ -25,35 +24,18 @@ func main() {
 
 	router := chi.NewRouter()
 
+	router.Post("/search_mails", routes.SearchEmails)
+
 	router.Get("/home", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte("you are in home"))
 	})
 
-	workDir, _ := os.Getwd()
-	filesDir := http.Dir(filepath.Join(workDir, `web\public`))
+	//workDir, _ := os.Getwd()
+	//filesDir := http.Dir(filepath.Join(workDir, `web\public`))
 
-	FileServer(router, "/", filesDir)
+	//FileServer(router, "/", filesDir)
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 
-}
-
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
-	}
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", http.StatusMovedPermanently).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
-		fs.ServeHTTP(w, r)
-	})
 }
