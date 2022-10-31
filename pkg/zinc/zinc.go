@@ -52,7 +52,7 @@ func NewIndex(name string) *zincIndex {
 //		"max_results": 20,
 //		"_source": []
 //	}
-func (index zincIndex) Post(method, json_str string) string {
+func (index zincIndex) Post(method, json_str string) []byte {
 
 	index_url := fmt.Sprintf(`http://localhost:4080/api/%s/`, index.name)
 
@@ -89,6 +89,6 @@ func (index zincIndex) Post(method, json_str string) string {
 	// fmt.Println("response Headers:", resp.Header)
 
 	// fmt.Println(body)
-	return string(body)
+	return body
 
 }
