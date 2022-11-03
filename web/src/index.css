@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+textarea {
+    resize: none;
+}
+
+.active_row {
+    background-color:rgb(243 244 246)
+ }
