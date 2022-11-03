@@ -68,13 +68,14 @@
                 </div>
                 </div>
 
-                <div class="flex grow pl-5">
-                <div>
+                <div class="flex grow pl-5 ">
+                <div class ="grow shadow-md rounded-lg">
     
-        <div rows="1" class="px-5 grow block w-100 min-w-full text-sm text-gray-900 bg-gray-50 rounded-t-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="...">
+        <div rows="1" class="py-3 px-5 grow block w-100 min-w-full text-sm text-gray-700 bg-gray-50 rounded-t-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="...">
                <b>Subject: </b> {{selectedEmail.subject}}
         </div>
-        <div v-html="selectedEmail.content" type="text" id="message" rows="15" class="overflow-auto max-w-md max-h-96 px-5 grow block w-100 min-w-full text-sm text-gray-900 bg-gray-50 rounded-b-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="...">
+        
+        <div v-html="selectedEmail.content" class="grow overflow-auto max-w-md max-h-96 px-5 block w-100 min-w-full text-sm text-gray-500 bg-white rounded-b-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="...">
         </div>
 
         </div>
