@@ -1,7 +1,8 @@
 import axios from './axios'
+import type { AxiosResponse } from 'axios'
 import type { SearchReq } from '@/interfaces/SearchReq'
 
- const SearchEmail = async (searchreq: SearchReq) => 
-    await axios.post("search_email", searchreq)
+ const SearchEmail = async (searchreq: SearchReq): Promise<AxiosResponse> => 
+    await axios.post("search_mails", searchreq)
 
 export default SearchEmail
