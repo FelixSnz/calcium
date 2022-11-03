@@ -8,7 +8,41 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
+
+type FullResponse[sourceType interface{}] struct {
+	Took     int              `json:"took"`
+	TimedOut bool             `json:"timed_out"`
+	Shards   Shard            `json:"_shards"`
+	Hits     Hits[sourceType] `json:"hits"`
+}
+
+type Shard struct {
+	Total      int `json:"total"`
+	Successful int `json:"successful"`
+	Skipped    int `json:"skipped"`
+	Failed     int `json:"failed"`
+}
+
+type HitTotalValue struct {
+	Value int `json:"value"`
+}
+
+type Hits[sourceType interface{}] struct {
+	Total    HitTotalValue          `json:"total"`
+	MaxScore float64                `json:"max_score"`
+	Hits     []IndexDoc[sourceType] `json:"hits"`
+}
+
+type IndexDoc[sourceType interface{}] struct {
+	Index     string     `json:"_index"`
+	Type      string     `json:"_type"`
+	Id        string     `json:"_id"`
+	Score     float64    `json:"_score"`
+	Timestamp time.Time  `json:"@timestamp"`
+	Source    sourceType `json:"_source"`
+}
 
 type ErrorResponse struct {
 	Err string `json:"error"`
@@ -52,11 +86,11 @@ func NewIndex(name string) *zincIndex {
 //		"max_results": 20,
 //		"_source": []
 //	}
-func (index zincIndex) Post(method, json_str string) []byte {
+func (index zincIndex) Search(query string) []byte {
 
 	index_url := fmt.Sprintf(`http://localhost:4080/api/%s/`, index.name)
 
-	req, err := http.NewRequest("POST", index_url+method, strings.NewReader(json_str))
+	req, err := http.NewRequest("POST", index_url+"_search", strings.NewReader(query))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,10 +119,32 @@ func (index zincIndex) Post(method, json_str string) []byte {
 
 	}
 
-	// fmt.Println("response Status:", resp.Status)
-	// fmt.Println("response Headers:", resp.Header)
-
-	// fmt.Println(body)
 	return body
+
+}
+
+func GetOnlySource[sourceType interface{}](ZincResponse []byte) []byte {
+
+	var fullResp FullResponse[sourceType]
+	err := json.Unmarshal(ZincResponse, &fullResp)
+
+	if err != nil {
+		fmt.Println("error unmarshaling the body from zinc response")
+		log.Fatal(err)
+	}
+	var source_data []sourceType
+
+	for _, elm := range fullResp.Hits.Hits {
+		source_data = append(source_data, elm.Source)
+	}
+
+	source, err := json.Marshal(source_data)
+
+	if err != nil {
+		fmt.Println("error marshaling emails array into json")
+		log.Fatal(err)
+	}
+
+	return source
 
 }
