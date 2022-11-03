@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+	router.Use(cors.AllowAll().Handler)
 
 	router.Post("/search_mails", routes.SearchEmails)
 
