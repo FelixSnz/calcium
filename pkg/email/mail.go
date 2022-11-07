@@ -10,20 +10,22 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
 
 // defines Email file relevant content as an object to store its information as json format
 type JsonStruct struct {
-	Origin    string    `json:"origin"`
-	SubFolder string    `json:"subfolder"`
-	Date      time.Time `json:"date"`
-	Subject   string    `json:"subject"`
-	From      string    `json:"from"`
-	To        []string  `json:"to"`
-	Cc        []string  `json:"cc"`
-	Content   string    `json:"content"`
+	FileNumber int       `json:"filenumber"`
+	Origin     string    `json:"origin"`
+	SubFolder  string    `json:"subfolder"`
+	Date       time.Time `json:"date"`
+	Subject    string    `json:"subject"`
+	From       string    `json:"from"`
+	To         []string  `json:"to"`
+	Cc         []string  `json:"cc"`
+	Content    string    `json:"content"`
 
 	// Bcc         []string  `json:"bcc"`
 	// Id          string    `json:"id"`
@@ -175,6 +177,17 @@ func (email Email) GetJson() string {
 
 	splited_path := strings.Split(email.path, "\\")
 
+	file_number_str := splited_path[len(splited_path)-1]
+
+	file_number, err := strconv.Atoi(file_number_str)
+	if err != nil {
+		fmt.Printf("couldn't convert to number %s\n", file_number_str)
+		panic(err)
+
+	}
+
+	fmt.Printf("splitted: %v\n", splited_path)
+
 	root_idx := utils.IndexOf(email.root, splited_path)
 
 	if root_idx == -1 {
@@ -187,14 +200,15 @@ func (email Email) GetJson() string {
 	content := email.GetContent()
 
 	json_str, err := json.Marshal(JsonStruct{
-		Origin:    splited_path[root_idx+1],
-		SubFolder: sub_folder,
-		Date:      CleanDate(date),
-		Subject:   strings.TrimPrefix(subject, "Subject: "),
-		From:      strings.TrimPrefix(from_mail, "From: "),
-		To:        GetMails(strings.TrimPrefix(to_mails, "To: ")),
-		Cc:        GetMails(strings.TrimPrefix(cc_mails, "Cc: ")),
-		Content:   content,
+		FileNumber: file_number,
+		Origin:     splited_path[root_idx+1],
+		SubFolder:  sub_folder,
+		Date:       CleanDate(date),
+		Subject:    strings.TrimPrefix(subject, "Subject: "),
+		From:       strings.TrimPrefix(from_mail, "From: "),
+		To:         GetMails(strings.TrimPrefix(to_mails, "To: ")),
+		Cc:         GetMails(strings.TrimPrefix(cc_mails, "Cc: ")),
+		Content:    content,
 
 		// Id:          strings.TrimPrefix(ID, "Message-ID: "),
 		// Bcc:         GetMails(strings.TrimPrefix(bcc_mails, "Bcc: ")),
