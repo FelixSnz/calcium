@@ -6,7 +6,27 @@ The indexer is also provided in this project which locates at the path:
 
 `cmd/indexer/indexer.go`
 
-And the rest api with a friendly gui is located at the path:
+the indexer asks for 2 parameters, the zinc index name, and the path of the text file emails,
+for example, run the following command to index the contents of the folder 'resources/mails/samples'
+into the zinc index 'emails_test'
 
-`cmd/calcium/calcium.go`
+`go run cmd/calcium/indexer.go emails_test resources/mails/samples`
+
+And the rest api is located at the path: `cmd/calcium/server.go`
+
+to run the server just type the following command
+
+`go run cmd/calcium/server.go`
+
+to run the GUI go to web folder and enter npm run dev
+`cd web
+npm install
+npm run dev`
+
+
+## Screenshots
+![Home](./screenshots/main.PNG)
+
+
+![Results](./screenshots/results.PNG)
 
