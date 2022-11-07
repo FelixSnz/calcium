@@ -19,9 +19,12 @@ to run the server just type the following command
 `go run cmd/calcium/server.go`
 
 to run the GUI go to web folder and enter npm run dev
-`cd web
-npm install
-npm run dev`
+
+`cd web`
+
+`npm install`
+
+`npm run dev`
 
 
 ## Screenshots
