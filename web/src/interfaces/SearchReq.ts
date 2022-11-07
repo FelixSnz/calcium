@@ -1,7 +1,6 @@
 export interface SearchReq {
-    keyword: string,
+    type:string,
+    keywords: string[],
     from: string,
     to: string,
-    done: boolean,
-    _id: string,
 }
