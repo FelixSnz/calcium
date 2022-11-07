@@ -86,11 +86,11 @@ func NewIndex(name string) *zincIndex {
 //		"max_results": 20,
 //		"_source": []
 //	}
-func (index zincIndex) Search(query string) []byte {
+func (index zincIndex) Post(method, reqBody string) []byte {
 
 	index_url := fmt.Sprintf(`http://localhost:4080/api/%s/`, index.name)
 
-	req, err := http.NewRequest("POST", index_url+"_search", strings.NewReader(query))
+	req, err := http.NewRequest("POST", index_url+method, strings.NewReader(reqBody))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func (index zincIndex) Search(query string) []byte {
 	defer resp.Body.Close()
 	//log.Printf("resp: %d\n", resp.StatusCode)
 
-	body, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,14 +112,14 @@ func (index zincIndex) Search(query string) []byte {
 	if resp.StatusCode != 200 {
 
 		var err_resp ErrorResponse
-		json.Unmarshal(body, &err_resp)
+		json.Unmarshal(respBody, &err_resp)
 
 		fmt.Println("error from zincsearch: ")
 		log.Fatal(err_resp.Err)
 
 	}
 
-	return body
+	return respBody
 
 }
 
