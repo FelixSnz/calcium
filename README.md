@@ -10,13 +10,13 @@ the indexer asks for 2 parameters, the zinc index name, and the path of the text
 for example, run the following command to index the contents of the folder 'resources/mails/samples'
 into the zinc index 'emails_test'
 
-`go run cmd/calcium/indexer.go emails_test resources/mails/samples`
+`go run cmd/indexer/indexer.go emails_test resources/mails/samples`
 
-And the rest api is located at the path: `cmd/calcium/server.go`
+And the rest api is located at the path: `cmd/server/server.go`
 
 to run the server just type the following command
 
-`go run cmd/calcium/server.go`
+`go run cmd/server/server.go`
 
 to run the GUI go to web folder and enter npm run dev
 
